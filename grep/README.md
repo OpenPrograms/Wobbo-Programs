@@ -33,44 +33,73 @@ default, each selected input line shall be written to the standard output.
 
 OPTIONS
 =======
-* `-F` Match using fixed strings. Treats each pattern specified as a string
+* `-F` 
+    
+    Match using fixed strings. Treats each pattern specified as a string
     instead of a regular expression.
 
-* `-c` Write only a count of selected lines to standard output.
+* `-c` 
+    
+    Write only a count of selected lines to standard output.
 
 * `-e pattern`
+    
      Specify one pattern to be used during the search fot input. Unless the
     `-F` option is also specified, each pattern is treated as a Lua pattern.
     Multiple `-e` or `-f` options are accepted.
 
 * `-f pattern_file`
+    
     Read one or more patterns to be used during the search fo input. The 
     patterns in `pattern_file` should be terminated by a `<newline>`. Unless
     the `-F` option is also specified, each pattern is treated as a Lua
     pattern.
 
-* `-i` Perform pattern matching in searches without regard of case.
+* `-i` 
+    
+    Perform pattern matching in searches without regard of case.
 
-* `-l` (the letter ell.) Write only the names of files containing selected lines to standard output. Pathnames shall be written once per file searched.
+* `-l` (the letter ell.) 
 
-* `-n` Preced each output line by its relative line number in each file, each file starting at line 1.
+    Write only the names of files containing selected lines to standard 
+    output. Pathnames shall be written once per file searched.
 
-* `-q` Quiet. Nothing is written to the standard output, regardless of mathcing lines.
+* `-n` 
 
-* `-s` Suppress the error messages ordinarly written for nonexistent or unreadable files. Other error messages will not be suppressed.
+    Preced each output line by its relative line number in each file, each 
+    file starting at line 1.
 
-* `-v` Select lines not matching any of the specified patterns.
+* `-q` 
 
-* `-x` Consider only inptu lines that use all characters in the line excluding the terminating <newline> to match an entire fixed string or regular expression to be matching lines.
+    Quiet. Nothing is written to the standard output, regardless of 
+    mathcing lines.
+
+* `-s` 
+    
+    Suppress the error messages ordinarly written for nonexistent or
+    unreadable files. Other error messages will not be suppressed.
+
+* `-v`
+    
+    Select lines not matching any of the specified patterns.
+
+* `-x` 
+
+    Consider only inptu lines that use all characters in the line excluding
+    the terminating <newline> to match an entire fixed string or regular 
+    expression to be matching lines.
 
 EXAMPLES
 ========
 *   `grep -n local file.lua`
+    
     Look for the word local in the file file.lua and print line numbers
 
 *   `grep -F % file`
+    
     Look for the string % in file.
 
 *   `grep -n -e local -e (.-)=(.-) file.lua`
+    
     Look for variable declarations and assignments in the file file.lua and
     print line numbers
