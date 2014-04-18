@@ -3,6 +3,9 @@ local String = require "COLua.String"
 local unicode = require "unicode"
 
 COLua.Unicode = COLua{"Unicode", String;
+  __len = function(self)
+    return unicode.len(self.str)
+  end,
   _char = function(self, code, ...)
     return COLua.Unicode(unicode.char(code, ...))
   end,
@@ -19,7 +22,7 @@ COLua.Unicode = COLua{"Unicode", String;
     return COLua.Unicode(unicode.sub(self.str, i, j))
   end,
   upper = function(self)
-    return COLua.Unicode(unicode.upper(self))
+    return COLua.Unicode(unicode.upper(self.str))
   end}
 
 return COLua.Unicode
