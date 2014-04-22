@@ -90,15 +90,16 @@ local function lastModified(path)
 end
 
 local function list(path)
-  local last = nil
-  local dir = fs.getName(path)
-  return function()
-    local new = next(dir, last)
-    if isDirectory(new) then
-      new = new..'/'
-    end
-    return new
-  end
+  return dev
+--  local last = nil
+--  local dir = fs.name(path)
+--  return function()
+--    local new = next(dir, last)
+--    if isDirectory(new) then
+--      new = new..'/'
+--    end
+--    return new
+--  end
 end
 
 local function dirMakeDirectory(dir, path)
