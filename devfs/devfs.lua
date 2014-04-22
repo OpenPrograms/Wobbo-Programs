@@ -226,3 +226,10 @@ local function unregister(name)
   return true
 end
 
+return {register = register, unregister = unregister;
+  getLabel = getLabel, setLabel = setLabel, isReadOnly = isReadOnly,
+  spaceTotal = spaceTotal, spaceUsed = spaceUsed, exists = exists,
+  size = size, isDirectory = isDirectory, lastModified = lastModified,
+  list = list, makeDirectory = makeDirectory, remove = remove, 
+  rename = rename, close = close, open = open, read = read, write = write,
+  seek = seek}
