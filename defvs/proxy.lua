@@ -147,5 +147,3 @@ end
 local function rename(source, dest)
   return dirRename(dev, source, dest)
 end
-
-
