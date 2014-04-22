@@ -4,42 +4,12 @@ local event = require "event"
 local fs = require "filesystem"
 
 local devices = {}
-
-local function register(name, read, seek, write, close)
-  checkArg(1, name, "string")
-  checkArg(2, read, "function")
-  checkArg(3, seek, "function")
-  checkArg(4, write, "function")
-  checkArg(5, close, "function")
-  devices[name] = {read = read, seek = seek, write = write, close = close}
-  local i = 1
-  for address, componentType in omponent.list(name) do
-    if componentType == name then
-      proxy.dev[name..i] = address
-      i = i + 1
-    end
-  end
-  return true
-end
-
-local function unregister(name)
-  local pattern = name.."%d*"
-  local rmTab = {}
-  for path in proxy.list() do
-    if path:find(pattern) then
-      table.insert(rmTab, path)
-    end
-  end
-  for i=1, #rmTab do
-    proxy.remove(rmTab[i])
-  end
-  return true
-end
-
 local dev = {}
+local handles = {}
 
 local label = "defvs"
 local files = {}
+
 
 local function getBase(path)
   checkArg(1, path, "string")
@@ -182,3 +152,77 @@ end
 local function rename(source, dest)
   return dirRename(dev, source, dest)
 end
+
+local function open(path)
+  local nextHandle, hand = #handles + 1, nil
+  if exists(path) then
+    local base, rest, dir = nil, path, dev
+    repeat
+      base, rest = getBase(rest)
+      if rest then
+        dir = dir[base]
+      end
+    until not rest
+    file = dir[base]
+    hand = component.proxy(file[2])
+    (devices(file[1])).open(hand, path)
+    handles[nextHandle] = hand
+  else
+    error "No such file!"
+  end
+  return hand
+end
+
+local function close(handle)
+  local hand = handles[handle]
+  handles[handle] = nil
+  return (devices[hand.type]).close(hand)
+end
+
+local function read(handle, bytes)
+  local hand = handles[handle]
+  return (devices[hand.type]).read(hand, bytes)
+end
+
+local function seek(handle, whence, offset)
+  local hand = handles[handle]
+  return (devices[hand.type]).seek(hand, whence, offset)
+end
+
+local function write(handle, data)
+  local hand = handles[handle]
+  return (devices[hand.type]).write(hand, data)
+end
+
+--- Functions for (un)registering new devices
+local function register(name, read, seek, write, close)
+  checkArg(1, name, "string")
+  checkArg(2, read, "function")
+  checkArg(3, seek, "function")
+  checkArg(4, write, "function")
+  checkArg(5, close, "function")
+  devices[name] = {read = read, seek = seek, write = write, close = close}
+  local i = 1
+  for address, componentType in omponent.list(name) do
+    if componentType == name then
+      dev[name..i] = {name, address}
+      i = i + 1
+    end
+  end
+  return true
+end
+
+local function unregister(name)
+  local pattern = name.."%d*"
+  local rmTab = {}
+  for path in list() do
+    if path:find(pattern) then
+      table.insert(rmTab, path)
+    end
+  end
+  for i=1, #rmTab do
+    remove(rmTab[i])
+  end
+  return true
+end
+
