@@ -38,16 +38,21 @@ local function spaceUsed()
 end
 
 local function dirIsDirectory(dir, path)
+  print(tostring(path))
   local base, rest = getBase(path)
   if rest then
     return dirIsDirectory(dir[base], rest)
   else
-    return base.isDirectory or false
+    return dir[base].isDirectory or false
   end
 end
 
 local function isDirectory(path)
-  return dirIsDirectory(dev, path)
+  if path then
+    return dirIsDirectory(dev, path)
+  else
+    return false
+  end
 end
 
 
@@ -55,7 +60,7 @@ local function dirExists(dir, path)
   checkArg(1, path, "string")
   local base, rest = getBase(path)
   if rest then
-    if isDirectory(dir[base]) then
+    if dirIsDirectory(dir, base) then
       return dirExists(dir[base], rest)
     else
       return false
