@@ -37,6 +37,20 @@ local function spaceUsed()
   return computer.usedMemory()
 end
 
+local function dirIsDirectory(dir, path)
+  local base, rest = getBase(path)
+  if rest then
+    return dirIsDirectory(dir[base], rest)
+  else
+    return base.isDirectory or false
+  end
+end
+
+local function isDirectory(path)
+  return dirIsDirectory(dev, path)
+end
+
+
 local function dirExists(dir, path)
   checkArg(1, path, "string")
   local base, rest = getBase(path)
@@ -72,23 +86,11 @@ local function size(path)
   return dirSize(dev, path)
 end
 
-local function dirIsDirectory(dir, path)
-  local base, rest = getBase(path)
-  if rest then
-    return dirIsDirectory(dir[base], rest)
-  else
-    return base.isDirectory or false
-  end
-end
-
-local function isDirectory(path)
-  return dirIsDirectory(dev, path)
-end
-
 local function lastModified(path)
   return os.time()
 end
 
+-- returns an table of entries inside the path, and table.n = #table
 local function list(path)
   return dev
 --  local last = nil
