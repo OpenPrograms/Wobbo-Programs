@@ -154,8 +154,9 @@ local function rename(source, dest)
   return dirRename(dev, source, dest)
 end
 
-local function open(path)
-  local nextHandle, hand = #handles + 1, nil
+local function open(path, mode)
+  mode = mode or 'r'
+  local nextHandle = #handles + 1
   if exists(path) then
     local base, rest, dir = nil, path, dev
     repeat
@@ -164,58 +165,79 @@ local function open(path)
         dir = dir[base]
       end
     until not rest
-    file = dir[base]
-    hand = component.proxy(file[2])
-    (devices(file[1])).open(hand, path)
+    local file = dir[base]
+    local hand = {type = file.name}
+    if file.type == "component" then
+      hand.data = component.proxy(file.address)
+    elseif file.type == "singleton" then
+      hand.data = nil
+    end
+    (devices[hand.type]).open(hand.data, path, mode)
     handles[nextHandle] = hand
   else
     error "No such file!"
   end
-  return hand
+  return nextHandle
 end
 
 local function close(handle)
   local hand = handles[handle]
   handles[handle] = nil
-  return (devices[hand.type]).close(hand)
+  return (devices[hand.type]).close(hand.data)
 end
 
 local function read(handle, bytes)
   local hand = handles[handle]
-  return (devices[hand.type]).read(hand, bytes)
+  return (devices[hand.type]).read(hand.data, bytes)
 end
 
 local function seek(handle, whence, offset)
   local hand = handles[handle]
-  return (devices[hand.type]).seek(hand, whence, offset)
+  return (devices[hand.type]).seek(hand.data, whence, offset)
 end
 
 local function write(handle, data)
   local hand = handles[handle]
-  return (devices[hand.type]).write(hand, data)
+  return (devices[hand.type]).write(hand.data, data)
 end
 
 --- Functions for (un)registering new devices
-local function register(name, open, read, seek, write, close)
+local function registerComponent(name, open, read, seek, write, close)
   checkArg(1, name, "string")
   checkArg(2, open, "function")
   checkArg(3, read, "function")
   checkArg(4, seek, "function")
   checkArg(5, write, "function")
   checkArg(6, close, "function")
-  devices[name] = {read = read, seek = seek, write = write, close = close}
+  devices[name] = {open = open, read = read, seek = seek, write = write, 
+                    close = close}
   local i = 1
-  for address, componentType in omponent.list(name) do
+  for address, componentType in component.list(name) do
     if componentType == name then
-      dev[name..i] = {name, address}
+      dev[name..i] = {name = name, address = address, type = "component"}
       i = i + 1
     end
   end
   return true
 end
 
+local function registerSingleton(name, open, read, seek, write, close)
+  checkArg(1, name, "string")
+  checkArg(2, open, "function")
+  checkArg(3, read, "function")
+  checkArg(4, seek, "function")
+  checkArg(5, write, "function")
+  checkArg(6, close, "function")
+  devices[name] = {open = open, read = read, seek = seek, write = write, 
+                    close = close}
+  dev[name] = {name = name, type = "singleton"}
+  return true
+end
+
+
 local function unregister(name)
   local pattern = name.."%d*"
+  devices[name] = nil
   local rmTab = {}
   for path in list() do
     if path:find(pattern) then
@@ -228,7 +250,8 @@ local function unregister(name)
   return true
 end
 
-return {register = register, unregister = unregister;
+return {registerComponent = registerComponent, unregister = unregister,
+  registerSingleton = registerSingleton;
   getLabel = getLabel, setLabel = setLabel, isReadOnly = isReadOnly,
   spaceTotal = spaceTotal, spaceUsed = spaceUsed, exists = exists,
   size = size, isDirectory = isDirectory, lastModified = lastModified,
