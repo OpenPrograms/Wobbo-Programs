@@ -162,6 +162,7 @@ local function rename(source, dest)
 end
 
 local function open(path, mode)
+  print(tostring(path), tostring(mode))
   mode = mode or 'r'
   local nextHandle = #handles + 1
   if exists(path) then
