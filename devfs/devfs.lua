@@ -196,12 +196,13 @@ local function write(handle, data)
 end
 
 --- Functions for (un)registering new devices
-local function register(name, read, seek, write, close)
+local function register(name, open, read, seek, write, close)
   checkArg(1, name, "string")
-  checkArg(2, read, "function")
-  checkArg(3, seek, "function")
-  checkArg(4, write, "function")
-  checkArg(5, close, "function")
+  checkArg(2, open, "function")
+  checkArg(3, read, "function")
+  checkArg(4, seek, "function")
+  checkArg(5, write, "function")
+  checkArg(6, close, "function")
   devices[name] = {read = read, seek = seek, write = write, close = close}
   local i = 1
   for address, componentType in omponent.list(name) do
