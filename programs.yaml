@@ -1,0 +1,15 @@
+grep:
+	/blob/master/grep/grep.lua
+  POSIX grep with lua patterns
+COLua:
+	Wobbo/COLua
+	OpenComputers specific COLua objects
+energyd:
+	/blob/master/energyd/energyd.lua
+	Deamon for managing the energy levels
+getopt:
+	/blob/master/getopt/getopt.lua
+	Command line argument parser
+logging:
+	OpenPrograms/Lua-Logging/tree/master/lib
+	Port of Lua-Logging
