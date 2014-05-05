@@ -1,6 +1,6 @@
 grep:
 	/blob/master/grep/grep.lua
-  POSIX grep with lua patterns
+	POSIX grep with lua patterns
 COLua:
 	Wobbo/COLua
 	OpenComputers specific COLua objects
