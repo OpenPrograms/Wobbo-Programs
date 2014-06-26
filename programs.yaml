@@ -2,7 +2,7 @@ grep:
 	/blob/master/grep/grep.lua
 	POSIX grep with lua patterns
 COLua:
-	Wobbo/COLua
+	/blob/master/COLua/Unicode.lua
 	OpenComputers specific COLua objects
 energyd:
 	/blob/master/energyd/energyd.lua
