@@ -10,6 +10,13 @@ local handles = {}
 local label = "defvs"
 local files = {}
 
+local function getPathComponents(path)
+  local components = {}
+  for component in path:gmatch("[^/^\\]+") do
+    table.insert(components, component)
+  end 
+  return components
+end 
 
 local function getBase(path)
   checkArg(1, path, "string")
