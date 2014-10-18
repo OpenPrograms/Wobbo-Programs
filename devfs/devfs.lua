@@ -18,9 +18,23 @@ local function getPathComponents(path)
   return components
 end 
 
-local function getBase(path)
-  checkArg(1, path, "string")
-  return path:match("([^/])/?(.*)")
+local function getNode(path)
+  local comps = getPathComponents(path)
+  local curDir = dir
+  for i in 1, #comps do
+    local tmp = dir[comps[i]]
+    if tmp then
+      if i == #comps then
+        return tmp
+      elseif tmp.__type == "directory" then
+        curDir = tmp
+      else
+        return nil, "No such file: "..path
+      end
+    else
+        return nil, "No such file: "..path
+    end
+  end
 end
 
 local function getLabel()
