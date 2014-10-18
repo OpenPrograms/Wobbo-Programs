@@ -191,52 +191,30 @@ local function write(handle, data)
 end
 
 --- Functions for (un)registering new devices
-local function registerComponent(name, open, read, seek, write, close)
-  checkArg(1, name, "string")
-  checkArg(2, open, "function")
-  checkArg(3, read, "function")
-  checkArg(4, seek, "function")
-  checkArg(5, write, "function")
-  checkArg(6, close, "function")
-  devices[name] = {open = open, read = read, seek = seek, write = write, 
-                    close = close}
-  local i = 1
-  for address, componentType in component.list(name) do
-    if componentType == name then
-      dev[name..i] = {name = name, address = address, type = "component"}
-      i = i + 1
-    end
+local function register(path, typ, open, read, seek, write, close)
+  checkArg(1, name,  "string")
+  checkArg(2, typ ,  "string")
+  checkArg(3, open,  "function")
+  checkArg(4, read,  "function")
+  checkArg(5, seek,  "function")
+  checkArg(6, write, "function")
+  checkArg(7, close, "function")
+  local dirPath = fs.getPath(path)
+  if not isDirectory(dirPath) then
+    return nil, "No such directory: "..dir
+  elseif exists(path) then
+    return nil, "File "..path.." already exists"
   end
+  local dir  = getNode(dirPath)
+  local name = fs.getName(path)
+  local file = {__type = typ , open  = open,  read  = read,
+                seek   = seek, write = write, close = close}
+  dir[name] = file
   return true
 end
 
-local function registerSingleton(name, open, read, seek, write, close)
-  checkArg(1, name, "string")
-  checkArg(2, open, "function")
-  checkArg(3, read, "function")
-  checkArg(4, seek, "function")
-  checkArg(5, write, "function")
-  checkArg(6, close, "function")
-  devices[name] = {open = open, read = read, seek = seek, write = write, 
-                    close = close}
-  dev[name] = {name = name, type = "singleton"}
-  return true
-end
-
-
-local function unregister(name)
-  local pattern = name.."%d*"
-  devices[name] = nil
-  local rmTab = {}
-  for path in list() do
-    if path:find(pattern) then
-      table.insert(rmTab, path)
-    end
-  end
-  for i=1, #rmTab do
-    remove(rmTab[i])
-  end
-  return true
+local function unregister(path)
+  local dir = fs.getPath(path)
 end
 
 return {registerComponent = registerComponent, unregister = unregister,
