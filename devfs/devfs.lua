@@ -68,17 +68,7 @@ local function exists(path)
 end
 
 local function size(path)
-  if isDirectory(path) then
-    local count = 0
-    for k, _ in pairs(getNode(path)) do
-      if k:sub(1,2) ~= "__" then
-        count = count + 1
-      end
-    end
-    return count
-  else
-    return nil, "No such directory: " .. path
-  end
+  return #(list(path))
 end
 
 local function lastModified(path)
@@ -87,16 +77,17 @@ end
 
 -- returns an table of entries inside the path, and table.n = #table
 local function list(path)
-  return dev
---  local last = nil
---  local dir = fs.name(path)
---  return function()
---    local new = next(dir, last)
---    if isDirectory(new) then
---      new = new..'/'
---    end
---    return new
---  end
+  if isDirectory(path) then
+    local lst = {}
+    for k, _ in pairs(getNode(path)) do
+      if k:sub(1,2) ~= "__" then
+        table.insert(lst, k)
+      end
+    end
+    return lst
+  else
+    return nil, "No such directory: " .. path
+  end
 end
 
 local function dirMakeDirectory(dir, path)
