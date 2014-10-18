@@ -119,28 +119,19 @@ local function remove(path)
   return dirRemove(dev, path)
 end
 
-local function dirRename(dir, source, dest)
-  local base, rest = getBase(source)
-  if rest then
-    return dirRename(dir[base], rest, dest)
-  else
-    local destBase, destRest, destDir = nil, nil, dev
-    repeat
-      destBase, destRest = getBase(dest)
-      if not destDir[destBase] then
-        destDir[destBase] = {}
-      end
-      destDir = destDir[destBase]
-      dest = destRest
-    until not destRest
-    destDir[destBase] = dir[base]
-    dir[base] = nil
-    return true
-  end
-end
-
 local function rename(source, dest)
-  return dirRename(dev, source, dest)
+  if not exists(source) then
+    return nil, "No such file: " .. source
+  end
+  local sourcePath = fs.getPath(source)
+  local destPath   = fs.getPath(dest)
+  if not isDirectory(destPath) then
+    return nil, destPath .. " is not a directory"
+  end
+  local src = getNode(source)
+  local destDir = getNose(destPath)
+  destDir[fs.getName(dest)] = src
+  return true
 end
 
 local function open(path, mode)
@@ -228,11 +219,13 @@ local function unregister(path)
   return true
 end
 
-return {registerComponent = registerComponent, unregister = unregister,
-  registerSingleton = registerSingleton;
-  getLabel = getLabel, setLabel = setLabel, isReadOnly = isReadOnly,
-  spaceTotal = spaceTotal, spaceUsed = spaceUsed, exists = exists,
-  size = size, isDirectory = isDirectory, lastModified = lastModified,
-  list = list, makeDirectory = makeDirectory, remove = remove, 
-  rename = rename, close = close, open = open, read = read, write = write,
-  seek = seek}
+return {register      = register,   unregister = unregister, 
+        getLabel      = getLabel,   setLabel   = setLabel,
+        isReadOnly    = isReadOnly, spaceTotal = spaceTotal, 
+        spaceUsed     = spaceUsed,  exists     = exists,
+        size          = size,      isDirectory = isDirectory,
+        lastModified  = lastModified, list     = list,
+        makeDirectory = makeDirectory, remove  = remove,
+        rename        = rename,     close      = close,
+        open          = open,       read       = read,
+        write         = write,      seek       = seek}
