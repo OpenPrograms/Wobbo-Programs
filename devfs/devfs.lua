@@ -90,18 +90,19 @@ local function list(path)
   end
 end
 
-local function dirMakeDirectory(dir, path)
-  local base, rest = getBase(path)
-  if rest then
-    return dirMakeDirectory(dir[base], rest)
-  else
-    dir[base] = {isDirectory = true}
-    return true
-  end
-end
-
 local function makeDirectory(path)
-  return dirMakeDirectory(dev, path)
+  if exists(path) then
+    return nil, path .. " already exists"
+  end
+  local dirPath = fs.getPath(path)
+  if isDirectory(dirPath) then
+    local dir  = getNode(dirPath)
+    local name = fs.getName(path)
+    dir[name] = {__type = "directory"}
+    return true
+  else
+    return nil, dirPath .. " is not a directory"
+  end
 end
 
 local function dirRemove(dir, path)
@@ -214,7 +215,17 @@ local function register(path, typ, open, read, seek, write, close)
 end
 
 local function unregister(path)
-  local dir = fs.getPath(path)
+  if not exists(path) then
+    return nil, "No such file"
+  end
+  if isDirectory(path) then
+    return nil, path .. " is a directory"
+  end
+  local dirPath = fs.getPath(path)
+  local dir     = getNode(dirPath)
+  local name    = fs.getName(path)
+  dir[name] = nil
+  return true
 end
 
 return {registerComponent = registerComponent, unregister = unregister,
