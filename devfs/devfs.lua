@@ -58,58 +58,27 @@ local function spaceUsed()
   return computer.usedMemory()
 end
 
-local function dirIsDirectory(dir, path)
-  print(tostring(path))
-  local base, rest = getBase(path)
-  if rest then
-    return dirIsDirectory(dir[base], rest)
-  else
-    return dir[base].isDirectory or false
-  end
-end
-
 local function isDirectory(path)
-  if path then
-    return dirIsDirectory(dev, path)
-  else
-    return false
-  end
-end
-
-
-local function dirExists(dir, path)
-  checkArg(1, path, "string")
-  local base, rest = getBase(path)
-  if rest then
-    if dirIsDirectory(dir, base) then
-      return dirExists(dir[base], rest)
-    else
-      return false
-    end
-  else
-    return (dir[base] and true) or false
-  end
+  local dir = getNode(path)
+  return dir and dir.__type == "directory"
 end
 
 local function exists(path)
-  return dirExists(dev, path)
-end
-
-local function dirSize(dir, path)
-  local base, rest = getBase(path)
-  if rest then
-    if isDirectory(dir[base]) then
-      return dirSize(dir[base], rest)
-    else
-      return 0
-    end
-  else
-    return #(dir[path])
-  end
+  return getNode(path) and true or false
 end
 
 local function size(path)
-  return dirSize(dev, path)
+  if isDirectory(path) then
+    local count = 0
+    for k, _ in pairs(getNode(path)) do
+      if k:sub(1,2) ~= "__" then
+        count = count + 1
+      end
+    end
+    return count
+  else
+    return nil, "No such directory: " .. path
+  end
 end
 
 local function lastModified(path)
