@@ -24,7 +24,8 @@ local patternList = {}
 local patternFiles = {}
 
 local function printUsage()
-  print('Usage: '..shell.running()..' [-c|-l|-q][-Finsvx] [-e pattern] [-f patternFile] [pattern] [file...]')
+  local process = require("process")
+  print('Usage: '..process.running()..' [-c|-l|-q][-Finsvx] [-e pattern] [-f patternFile] [pattern] [file...]')
 end
 
 -- Resolve the location of a file, without searching the path
@@ -63,8 +64,8 @@ end
 
 -- Process the command line arguments
 if #args < 1 then
-	printUsage()
-	return 2
+  printUsage()
+  return 2
 end
 
 for opt, arg in getopt(args, "Fce:f:ilnqsvx") do
