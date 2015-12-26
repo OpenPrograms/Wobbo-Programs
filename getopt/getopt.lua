@@ -24,23 +24,38 @@ function getopt(args, options)
       end
     end
     local char = current:sub(pos, pos)
-    pos = pos +1
+    pos = pos + 1
     if char == '-' then
-      return nil -- Stop processing by demand of user
+      -- Stop processing by demand of user
+      return nil
     end
+
     local i, j = string.find(options, char..':*')
     if not i then
       return '?', char
-    elseif j-i == 0 then
+    elseif j - i == 0 then
+      -- No option argument.
       return char
     elseif j - i == 1 then
-      if not args[1] or args[1]:sub(1,1) == '-' then
+      -- Required option arguments MAY be bundled with the flags (e.g. -ofoo),
+      -- OR separated by a space (e.g. -o foo). Arguments that start with a
+      -- dash are okay (e.g. negative numbers: -n-5 and -n -5 both return "n", "-5").
+      local arg = (pos <= #current) and current:sub(pos) or table.remove(args, 1)
+      current = nil
+
+      if not arg then
         return ':', char
       else
-        return char, table.remove(args, 1)
+        return char, arg
       end
     elseif j - i == 2 then
-      return char, (args[1] and args[1]:sub(1,1) ~= '-' and table.remove(args, 1)) or nil
+      -- Optional option arguments MUST be bundled with the flag (e.g. -ofoo, -f" test").
+      -- An argument separated by a space (e.g. -n -5) is instead treated as another
+      -- option (-n and -5 are options; to pass -5 as the argument, you must use -n-5).
+      local arg = (pos <= #current) and current:sub(pos) or nil
+      current = nil
+
+      return char, arg
     end
   end
 end
