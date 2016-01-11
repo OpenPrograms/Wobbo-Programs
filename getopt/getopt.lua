@@ -8,21 +8,20 @@
 function getopt(args, options)
   checkArg(1, args, "table")
   checkArg(2, options, "string")
+
   local current = nil
   local pos = 1
   return function()
-    if #args <= 0 then
-      return nil -- No arguments left to process
-    end
-    if not current or #current < pos then
-      if string.find(args[1], "^%-%w") then
-        current = string.sub(args[1], 2, #args[1])
+    if not current or pos > #current then
+      if #args > 0 and string.find(args[1], "^%-%w") then
+        current = table.remove(args, 1):sub(2)
         pos = 1
-        table.remove(args, 1)
       else
-        return nil -- No options left to process, the rest is up to the program
+        -- No options left to process, the rest is up to the program
+        return nil
       end
     end
+
     local char = current:sub(pos, pos)
     pos = pos +1
     if char == '-' then
